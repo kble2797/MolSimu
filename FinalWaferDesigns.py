@@ -103,38 +103,41 @@ def const_len(x,y,width):
 	length_post_bend3=length-length_pre_bend3
 	#length_pre_bend is the length of the path from the pill cavity to the bend
 	
+
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
 	#creates optical cavity for the right top
 	path1=gdspy.Path(width,(x+Op_Cav_Width/4,y-length_pre_bend1-Op_Cav_Len/2))
 	path1.segment(length_pre_bend1,'+y',**spec1)
 	cavity_pair.add(path1)
-	#creates a path along the y axis for the right top
+	#creates a path along the y axis for the middle
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend1-Pill_Cav_Width/4+Op_Cav_Width/4,-Op_Cav_Len/4+y-length_pre_bend1-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend1-Pill_Cav_Width/4+Op_Cav_Width/4,Op_Cav_Len/4+y-length_pre_bend1-Op_Cav_Len/2),**spec1))
 	path2=gdspy.Path(width,(x-length_post_bend1+Op_Cav_Width/4,y-length_pre_bend1-Op_Cav_Len/2))
 	path2.segment(length_post_bend1,'+x',**spec1)
 	cavity_pair.add(path2)
-	#creates the pill cavity and the x axis path for the right top
+	#creates the pill cavity and the x axis path for the middle
+
 
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x-gridspacingx,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x-gridspacingx,Op_Cav_Len/2+y),**spec1))
-	#creates optical cavity for the left top
+	#creates optical cavity for the left
 	path3=gdspy.Path(width,(x-gridspacingx+Op_Cav_Width/4,y-length_pre_bend2-Op_Cav_Len/2))
 	path3.segment(length_pre_bend2,'+y',**spec1)
 	cavity_pair.add(path3)
-	#creates a path along the y axis for the left top
+	#creates a path along the y axis for the left
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend2-gridspacingx-Pill_Cav_Width/4+Op_Cav_Width/4,-Op_Cav_Len/4+y-length_pre_bend2-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend2-gridspacingx-Pill_Cav_Width/4+Op_Cav_Width/4,Op_Cav_Len/4+y-length_pre_bend2-Op_Cav_Len/2),**spec1))
 	path4=gdspy.Path(width,(x-length_post_bend2-gridspacingx+Op_Cav_Width/4,y-length_pre_bend2-Op_Cav_Len/2))
 	path4.segment(length_post_bend2,'+x',**spec1)
 	cavity_pair.add(path4)
 	#creates the pill cavity and the x axis path for the left top
 
-	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y-gridspacingy),(Op_Cav_Width/2+x,Op_Cav_Len/2+y-gridspacingy),**spec1))
-	#creates optical cavity for the bottom
-	path5=gdspy.Path(width,(x,y-length_pre_bend3-gridspacingy-Op_Cav_Len/2))
+
+	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x+gridspacingx,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x+gridspacingx,Op_Cav_Len/2+y),**spec1))
+	#creates optical cavity for the right
+	path5=gdspy.Path(width,(x+gridspacingx,y-length_pre_bend3-Op_Cav_Len/2))
 	path5.segment(length_pre_bend3,'+y',**spec1)
 	cavity_pair.add(path5)
-	#creates a path along the y axis for the bottom
-	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4,-Op_Cav_Len/4+y-length_pre_bend3-gridspacingy-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4,Op_Cav_Len/4+y-length_pre_bend3-gridspacingy-Op_Cav_Len/2),**spec1))
-	path6=gdspy.Path(width,(x-length_post_bend3,y-length_pre_bend3-gridspacingy-Op_Cav_Len/2))
+	#creates a path along the y axis for the right
+	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4+gridspacingx,-Op_Cav_Len/4+y-length_pre_bend3-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4+gridspacingx,Op_Cav_Len/4+y-length_pre_bend3-Op_Cav_Len/2),**spec1))
+	path6=gdspy.Path(width,(x-length_post_bend3+gridspacingx,y-length_pre_bend3-Op_Cav_Len/2))
 	path6.segment(length_post_bend3,'+x',**spec1)
 	cavity_pair.add(path6)
 	#creates the pill cavity and the x axis path for the bottom
@@ -405,30 +408,30 @@ channel_bend(gridpositionx+7*gridspacingx,gridpositiony-2*gridspacingy,10,7*np.p
 channel_bend(gridpositionx+8*gridspacingx,gridpositiony-2*gridspacingy,10,np.pi/2)
 
 
-avoid_bounceback(gridpositionx-2*gridspacingx,gridpositiony+gridspacingy,10,np.pi/2)
-avoid_bounceback(gridpositionx-gridspacingx,gridpositiony+gridspacingy,10,np.pi/4)
-avoid_bounceback_corner(gridpositionx-gridspacingx,gridpositiony-gridspacingy,10,np.pi/4)
+avoid_bounceback(gridpositionx-2*gridspacingx,gridpositiony,10,np.pi/2)
+avoid_bounceback(gridpositionx-gridspacingx,gridpositiony,10,np.pi/4)
+avoid_bounceback_corner(gridpositionx,gridpositiony,10,np.pi/4)
 
-const_len(gridpositionx-gridspacingx,gridpositiony,10)
+const_len(gridpositionx,gridpositiony-gridspacingy,10)
 
 channel_bend_circ(gridpositionx+2*gridspacingx,gridpositiony-3*gridspacingy,10,0,250)
 channel_bend_circ(gridpositionx+3*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/8,250)
 channel_bend_circ(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/4,250)
 channel_bend_circ(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy,10,3*np.pi/8,250)
-channel_bend_circ(gridpositionx+7*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/2,250)
+channel_bend_circ(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/2,250)
 
 double_cavity(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy/2,10)
 double_circ_cavity(gridpositionx+4*gridspacingx,gridpositiony-gridspacingy/2,10,200)
 double_circ_cavity_bottom(gridpositionx+4*gridspacingx,gridpositiony-gridspacingy/2,10,200)
 double_circ_cavity_uneven(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy-gridspacingy/2,10,200)
 
-SA_cavity(gridpositionx-Op_Cav_Width/2,gridpositiony,10,300,100,0,0)
-SA_cavity(gridpositionx+gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,2,1)
-SA_cavity(gridpositionx+2*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,5,0)
-SA_cavity(gridpositionx+3*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,7,1)
-SA_cavity(gridpositionx+4*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,10,0)
-SA_cavity(gridpositionx+5*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,12,1)
-SA_cavity(gridpositionx+6*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,15,0)
+SA_cavity(gridpositionx+2*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,0,0)
+SA_cavity(gridpositionx+3*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,2,1)
+SA_cavity(gridpositionx+4*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,5,0)
+SA_cavity(gridpositionx+5*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,7,1)
+SA_cavity(gridpositionx+6*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,10,0)
+SA_cavity(gridpositionx+7*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,12,1)
+SA_cavity(gridpositionx+8*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,15,0)
 
 # ------------------------------------------------------------------ #
 #      Write and view file
