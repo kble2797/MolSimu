@@ -2,6 +2,7 @@
 
 import gdspy
 import numpy as np
+#from doughnuts import doughnut
 
 spec1={'layer':1,'datatype':1}
 spec2={'layer':2,'datatype':2}
@@ -54,20 +55,32 @@ def avoid_bounceback(x,y,width,angle):
 	length=2000
 	#length of the path between cavities
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
-	#creates pill cavity
-	if angle>=np.pi/4:
+	#creates optical cavity
+	if angle==np.pi/2:
+		xnew=length*np.cos(angle)
+		ynew=Pill_Cav_Len+length*np.sin(angle)
+		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len+y+ynew-2*length-Op_Cav_Len),(Op_Cav_Width/4+x+xnew,y+ynew-Op_Cav_Len/2-2*length-Op_Cav_Len),**spec1))
+		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2-length-Op_Cav_Len))
+		path1.segment(length,angle,**spec1)
+		#creates the path from the optical cavity to the pill cavity
+	
+	elif angle>=np.pi/4:
 		xnew=length*np.cos(angle)
 		ynew=Pill_Cav_Len+length*np.sin(angle)
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew-Op_Cav_Len/4),**spec1))
+		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
+		path1.segment(length,angle,**spec1)
+		#creates the path from the optical cavity to the pill cavity
+	
 	else:
 		xnew=length*np.cos(angle)+Op_Cav_Width/4
 		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
-	#defines position and creates second cavity
-	path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
-	path1.segment(length,angle,**spec1)
-	#creates the path from the second cavity to the pill cavity
-
+		#defines position and creates pill cavity
+		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
+		path1.segment(length,angle,**spec1)
+		#creates the path from the optical cavity to the pill cavity
+	
 	cavity_pair.add(path1)
 
 
@@ -75,7 +88,7 @@ def avoid_bounceback_corner(x,y,width,angle):
 	length=2000
 	#length of path between cavities
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
-	#creates pill cavity
+	#creates optical cavity
 	if angle>=np.pi/4:
 		xnew=length*np.cos(angle)+Op_Cav_Width/2
 		ynew=Pill_Cav_Len+length*np.sin(angle)
@@ -84,10 +97,31 @@ def avoid_bounceback_corner(x,y,width,angle):
 		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2
 		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
-	#defines position and creates second cavity
+	#defines position and creates pill cavity
 	path1=gdspy.Path(width,(x+Op_Cav_Width/2,y+Op_Cav_Len/2))
 	path1.segment(length,angle,**spec1)
-	#creates the path from the second cavity to the pill cavity
+	#creates the path from the optical cavity to the pill cavity
+
+	cavity_pair.add(path1)
+
+
+def avoid_bounceback_both_corners(x,y,width,angle):
+	length=2000
+	#length of path between cavities
+	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
+	#creates optical cavity
+	if angle>=np.pi/4:
+		xnew=length*np.cos(angle)+Op_Cav_Width/2
+		ynew=Pill_Cav_Len+length*np.sin(angle)
+		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,y+ynew),**spec1))
+	else:
+		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2
+		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
+		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,Op_Cav_Len/4+y+ynew),**spec1))
+	#defines position and creates pill cavity
+	path1=gdspy.Path(width,(x+Op_Cav_Width/2,y+Op_Cav_Len/2))
+	path1.segment(length,angle,**spec1)
+	#creates the path from the optical cavity to the pill cavity
 
 	cavity_pair.add(path1)
 
@@ -383,18 +417,28 @@ def SA_cavity(x,y,width,h,w,N,add_half):
 		poly=gdspy.Polygon(points,**spec1)
 		cavity_pair.add(poly)
 
-	SA_old=2*Op_Cav_Len+2*Op_Cav_Width
-	SA_new=2*Op_Cav_Len+2*Op_Cav_Width+4*2*N*h+2*2*h*add_half
+	SA_old=2*Op_Cav_Len+2*Op_Cav_Width+2*(Op_Cav_Width*Op_Cav_Len)
+	SA_new=2*Op_Cav_Len+2*Op_Cav_Width+4*2*N*h+2*2*h*add_half+2*(Op_Cav_Width*Op_Cav_Len)
 	# print('The surface area ratio is: ' + str(SA_new/SA_old))
 	# print('The height to width ratio is( must be <5 ): ' + str(h/w))
 	# #gives information about the chosen cavity
 
-	cavity_pair.add(gdspy.Rectangle((-Pill_Cav_Width/2+x+Pill_Cav_Width/2,-Pill_Cav_Len/2+y-length-Op_Cav_Len),(Pill_Cav_Width/2+x+Pill_Cav_Width/2,Pill_Cav_Len/2+y-length-Op_Cav_Len),**spec1))
+	cavity_pair.add(gdspy.Rectangle((-Pill_Cav_Width/4+x+Pill_Cav_Width/2+100,-Pill_Cav_Len/4+y-length-Op_Cav_Len+Pill_Cav_Width/4),(Pill_Cav_Width/4+x+Pill_Cav_Width/2+100,Pill_Cav_Len/4+y-length-Op_Cav_Len+Pill_Cav_Width/4),**spec1))
 	#creates pill cavity
 	path1=gdspy.Path(width,(x+Pill_Cav_Width/2+500,y+Pill_Cav_Len/2-length-Op_Cav_Len))
 	path1.segment(length,'+y',**spec1)
 	cavity_pair.add(path1)
 	#creates path between the cavities and puts it on the first layer
+
+
+def doughnut(xcenter,ycenter,length, width,rim_width):
+	p1=gdspy.Rectangle((xcenter-width/2,ycenter-length/2),(xcenter+width/2,ycenter+length/2),**spec1)
+	p2=gdspy.Rectangle((xcenter-width/2+rim_width,ycenter-length/2+rim_width),(xcenter+width/2-rim_width,ycenter+length/2-rim_width),**spec1)
+	p3=gdspy.boolean(p1,p2,'not',**spec1)
+	cavity_pair.add(p3)
+
+# def donut(x,y,l,w,rim_w):
+# 	cavity_pair.add(doughnut(x,y,l,w,rim_w))
 
 
 channel_bend(gridpositionx,gridpositiony-2*gridspacingy,10,0)
@@ -408,11 +452,12 @@ channel_bend(gridpositionx+7*gridspacingx,gridpositiony-2*gridspacingy,10,7*np.p
 channel_bend(gridpositionx+8*gridspacingx,gridpositiony-2*gridspacingy,10,np.pi/2)
 
 
-avoid_bounceback(gridpositionx-2*gridspacingx,gridpositiony,10,np.pi/2)
-avoid_bounceback(gridpositionx-gridspacingx,gridpositiony,10,np.pi/4)
-avoid_bounceback_corner(gridpositionx,gridpositiony,10,np.pi/4)
+avoid_bounceback(gridpositionx-gridspacingx,gridpositiony-gridspacingy,10,np.pi/2)
+avoid_bounceback(gridpositionx,gridpositiony-gridspacingy,10,np.pi/4)
+avoid_bounceback_corner(gridpositionx+gridspacingx,gridpositiony-gridspacingy,10,np.pi/4)
+avoid_bounceback_both_corners(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy,10,np.pi/4)
 
-const_len(gridpositionx,gridpositiony-gridspacingy,10)
+const_len(gridpositionx-gridspacingx,gridpositiony,10)
 
 channel_bend_circ(gridpositionx+2*gridspacingx,gridpositiony-3*gridspacingy,10,0,250)
 channel_bend_circ(gridpositionx+3*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/8,250)
@@ -420,18 +465,55 @@ channel_bend_circ(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy,10,n
 channel_bend_circ(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy,10,3*np.pi/8,250)
 channel_bend_circ(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy,10,np.pi/2,250)
 
-double_cavity(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy/2,10)
-double_circ_cavity(gridpositionx+4*gridspacingx,gridpositiony-gridspacingy/2,10,200)
-double_circ_cavity_bottom(gridpositionx+4*gridspacingx,gridpositiony-gridspacingy/2,10,200)
-double_circ_cavity_uneven(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy-gridspacingy/2,10,200)
+double_cavity(gridpositionx+3*gridspacingx,gridpositiony-gridspacingy/2,10)
+double_circ_cavity(gridpositionx+5*gridspacingx,gridpositiony-gridspacingy/2,10,200)
+double_circ_cavity_bottom(gridpositionx+5*gridspacingx,gridpositiony-gridspacingy/2,10,200)
+double_circ_cavity_uneven(gridpositionx+3*gridspacingx,gridpositiony-gridspacingy-gridspacingy/2,10,200)
 
-SA_cavity(gridpositionx+2*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,0,0)
-SA_cavity(gridpositionx+3*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,2,1)
-SA_cavity(gridpositionx+4*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,5,0)
-SA_cavity(gridpositionx+5*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,7,1)
-SA_cavity(gridpositionx+6*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,10,0)
-SA_cavity(gridpositionx+7*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,12,1)
-SA_cavity(gridpositionx+8*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,15,0)
+SA_cavity(gridpositionx+gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,0,0)
+SA_cavity(gridpositionx+2*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,2,1)
+SA_cavity(gridpositionx+3*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,5,0)
+SA_cavity(gridpositionx+4*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,7,1)
+SA_cavity(gridpositionx+5*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,10,0)
+SA_cavity(gridpositionx+6*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,12,1)
+SA_cavity(gridpositionx+7*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,15,0)
+
+doughnut(gridpositionx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx-gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx-2*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+2*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+3*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+4*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+5*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+6*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx+7*gridspacingx,gridpositiony,3000,3000,500)
+doughnut(gridpositionx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx-gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+2*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+3*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+4*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+5*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+6*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+7*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+8*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+9*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx+10*gridspacingx,gridpositiony-gridspacingy,3000,3000,500)
+doughnut(gridpositionx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+2*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+3*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+4*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+5*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+6*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+7*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+8*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+2*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+3*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
 
 # ------------------------------------------------------------------ #
 #      Write and view file
