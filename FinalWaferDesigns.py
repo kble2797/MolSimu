@@ -3,6 +3,7 @@
 import gdspy
 import numpy as np
 #from doughnuts import doughnut
+from pill_cav1 import pill_cav
 
 spec1={'layer':1,'datatype':1}
 spec2={'layer':2,'datatype':2}
@@ -33,17 +34,17 @@ def channel_bend(x,y,width,angle):
 	#creates pill cavity
 	if angle>=np.pi/4:
 		xnew=(length/2)*np.cos(angle)
-		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)
+		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)-10
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,y+ynew),**spec1))
 	else:
-		xnew=(length/2)*np.cos(angle)+Op_Cav_Width/4
+		xnew=(length/2)*np.cos(angle)+Op_Cav_Width/4-5
 		ynew=length/2+Pill_Cav_Len/2+(length/2)*np.sin(angle)+500
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
 	#defines position and creates second cavity
 	path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
 	path1.segment(length/2,'+y',**spec1)
 	#creates the path from the pill cavity to the bend
-	path2=gdspy.Path(width,(x,y+Op_Cav_Len/2+length/2))
+	path2=gdspy.Path(width,(x,y+Op_Cav_Len/2+length/2-5))
 	path2.segment(length/2,angle,**spec1)
 	#creates the path from the second cavity to the bend
 
@@ -66,18 +67,18 @@ def avoid_bounceback(x,y,width,angle):
 	
 	elif angle>=np.pi/4:
 		xnew=length*np.cos(angle)
-		ynew=Pill_Cav_Len+length*np.sin(angle)
+		ynew=Pill_Cav_Len+length*np.sin(angle)-10
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew-Op_Cav_Len/4),**spec1))
-		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
+		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2-5))
 		path1.segment(length,angle,**spec1)
 		#creates the path from the optical cavity to the pill cavity
 	
 	else:
-		xnew=length*np.cos(angle)+Op_Cav_Width/4
-		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
+		xnew=length*np.cos(angle)+Op_Cav_Width/4-5
+		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500-5
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
 		#defines position and creates pill cavity
-		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2))
+		path1=gdspy.Path(width,(x,y+Op_Cav_Len/2-5))
 		path1.segment(length,angle,**spec1)
 		#creates the path from the optical cavity to the pill cavity
 	
@@ -90,15 +91,15 @@ def avoid_bounceback_corner(x,y,width,angle):
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
 	#creates optical cavity
 	if angle>=np.pi/4:
-		xnew=length*np.cos(angle)+Op_Cav_Width/2
-		ynew=Pill_Cav_Len+length*np.sin(angle)
+		xnew=length*np.cos(angle)+Op_Cav_Width/2-5
+		ynew=Pill_Cav_Len+length*np.sin(angle)-10
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,y+ynew),**spec1))
 	else:
-		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2
-		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
+		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2-10
+		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500-5
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
 	#defines position and creates pill cavity
-	path1=gdspy.Path(width,(x+Op_Cav_Width/2,y+Op_Cav_Len/2))
+	path1=gdspy.Path(width,(x+Op_Cav_Width/2-5,y+Op_Cav_Len/2-5))
 	path1.segment(length,angle,**spec1)
 	#creates the path from the optical cavity to the pill cavity
 
@@ -111,15 +112,15 @@ def avoid_bounceback_both_corners(x,y,width,angle):
 	cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
 	#creates optical cavity
 	if angle>=np.pi/4:
-		xnew=length*np.cos(angle)+Op_Cav_Width/2
-		ynew=Pill_Cav_Len+length*np.sin(angle)
+		xnew=length*np.cos(angle)+Op_Cav_Width/2-10
+		ynew=Pill_Cav_Len+length*np.sin(angle)-10
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,y+ynew),**spec1))
 	else:
-		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2
-		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500
+		xnew=length*np.cos(angle)+Op_Cav_Width/4+Op_Cav_Width/2-10
+		ynew=Pill_Cav_Len+length*np.sin(angle)-Op_Cav_Len/2+500-10
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew+Pill_Cav_Width/4,Op_Cav_Len/4+y+ynew),**spec1))
 	#defines position and creates pill cavity
-	path1=gdspy.Path(width,(x+Op_Cav_Width/2,y+Op_Cav_Len/2))
+	path1=gdspy.Path(width,(x+Op_Cav_Width/2-5,y+Op_Cav_Len/2-5))
 	path1.segment(length,angle,**spec1)
 	#creates the path from the optical cavity to the pill cavity
 
@@ -184,10 +185,10 @@ def channel_bend_circ(x,y,width,angle,radius):
 	#creates pill cavity
 	if angle>=np.pi/4:
 		xnew=(length/2)*np.cos(angle)
-		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)
+		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)-5
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew-Op_Cav_Len/4),**spec1))
 	else:
-		xnew=(length/2)*np.cos(angle)+Op_Cav_Width/4
+		xnew=(length/2)*np.cos(angle)+Op_Cav_Width/4-5
 		ynew=length/2+Pill_Cav_Len/2+(length/2)*np.sin(angle)+500
 		cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/4+y+ynew),(Op_Cav_Width/4+x+xnew,Op_Cav_Len/4+y+ynew),**spec1))
 	#defines position and creates second cavity
@@ -441,6 +442,22 @@ def doughnut(xcenter,ycenter,length, width,rim_width):
 # 	cavity_pair.add(doughnut(x,y,l,w,rim_w))
 
 
+# def pill_cav(xcenter,ycenter,length, width, rotation_angle):
+# 	p1=gdspy.Rectangle((xcenter-width/2,ycenter-length/2),(xcenter+width/2,ycenter+length/2),**spec1)
+# 	#creates the original square
+# 	p2=gdspy.Rectangle((xcenter-width/2,ycenter),(xcenter-width/2+2*width/3,ycenter+length/6),**spec1)
+# 	p3=gdspy.Rectangle((xcenter,ycenter-length/2),(xcenter+width/6,ycenter-length/6),**spec1)
+# 	#makes the side squares
+# 	p4=gdspy.boolean(p1,p2,'not',**spec1)
+# 	p5=gdspy.boolean(p4,p3,'not',**spec1)
+# 	p5.rotate(rotation_angle*np.pi/180,(xcenter,ycenter))
+# 	cavity_pair.add(p5)
+
+def pill_cav_call(xcenter,ycenter,length, width, rotation_angle):
+	a=pill_cav(xcenter,ycenter,length, width, rotation_angle)
+	cavity_pair.add(a)
+
+
 channel_bend(gridpositionx,gridpositiony-2*gridspacingy,10,0)
 channel_bend(gridpositionx+gridspacingx,gridpositiony-2*gridspacingy,10,np.pi/16)
 channel_bend(gridpositionx+2*gridspacingx,gridpositiony-2*gridspacingy,10,np.pi/8)
@@ -514,6 +531,28 @@ doughnut(gridpositionx+3*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500
 doughnut(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
 doughnut(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
 doughnut(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+
+pill_cav_call(gridpositionx-2*gridspacingx-2000,gridpositiony-Op_Cav_Len/2-2000,1500,1500,-90)
+pill_cav_call(gridpositionx-gridspacingx-3000,gridpositiony-Op_Cav_Len/2-1000,1500,1500,-90)
+pill_cav_call(gridpositionx-Op_Cav_Width/4-1000,gridpositiony-Op_Cav_Len/2-3000,1500,1500,-90)
+#const length pill cavities left to right
+pill_cav_call(gridpositionx+gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+2*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+3*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+4*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+5*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+6*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+7*gridspacingx+100,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,1500,0)
+#SA pill cavities left to right
+pill_cav_call(gridpositionx-gridspacingx,gridpositiony-gridspacingy-2000-Op_Cav_Len/2-Pill_Cav_Len/4,1500,1500,0)
+pill_cav_call(gridpositionx+2000*np.cos(np.pi/4),gridpositiony-gridspacingy+Op_Cav_Len/2+Pill_Cav_Len/4+2000*np.sin(np.pi/4)-10,1500,1500,180)
+pill_cav_call(gridpositionx+gridspacingx+Op_Cav_Width/2+2000*np.cos(np.pi/4)-5,gridpositiony-gridspacingy+Op_Cav_Len/2+Pill_Cav_Len/4+2000*np.sin(np.pi/4)-10,1500,1500,180)
+pill_cav_call(gridpositionx+2*gridspacingx+Op_Cav_Width/2+Pill_Cav_Width/4+2000*np.cos(np.pi/4)-10,gridpositiony-gridspacingy+Op_Cav_Len/2+Pill_Cav_Len/4+2000*np.sin(np.pi/4)-10,1500,1500,180)
+#avoid bounceback pill cavities left to right
+pill_cav_call(gridpositionx+3*gridspacingx+gridspacingx/2+gridspacingx/4,gridpositiony-gridspacingy-1000-Pill_Cav_Len/4-Op_Cav_Len/2,1500,1500,0)
+pill_cav_call(gridpositionx+5*gridspacingx+gridspacingx/2,gridpositiony-gridspacingy+Op_Cav_Len/2+2*500-Pill_Cav_Len/4,1500,1500,0)
+#Multiple Cavities Designs pill cavities
+
 
 # ------------------------------------------------------------------ #
 #      Write and view file
