@@ -306,21 +306,25 @@ crt_path(2,3000,-9075,33500,-pi/2)
 crt_donut(-9075,6500,oc_l,oc_w,500)
 crt_donut(-3025,-1000,oc_l,oc_w,500)
 crt_donut(3025,6500,oc_l,oc_w,500)
-
 crt_pcavity(-3025,10500)
-crt_path(50,1500,-3025,9750,'-y')
 
-# def circle(u):
-#     r = 4
-#     theta = 2 * u * np.pi
-#     y = r * np.cos(theta)
-#     x = r * np.sin(theta)
-#     return (x, y)
+cir=gdspy.Path(50,(-3025,9750))
+cir.segment(2750,'-y',**spec1)
 
-# cir=gdspy.Path(20,(-3025,8250))
-# cir.parametric(circle,**spec1)
+def circle(u):
+    r = 500
+    theta = 2 * u * np.pi
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)-500
+    return (x, y)
 
-# cavity_pair.add(cir)
+cir.parametric(circle,**spec1)
+crt_path(50,4050,-3525,6500,pi)
+crt_path(50,4050,-2525,6500,0)
+crt_path(50,5501,-3025,6000,-pi/2)
+
+
+cavity_pair.add(cir)
 
 
 # ------------------------------------------------------------------ #
