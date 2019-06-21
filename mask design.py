@@ -4,7 +4,7 @@
 import numpy as np
 import gdspy
 from scipy.constants import k,pi,N_A
-from pill_cav import pill_cav
+from pill_cav_final import pill_cav
 
 spec1={'layer':1,'datatype':1}
 spec2={'layer':2,'datatype':2}
@@ -26,17 +26,14 @@ path_cell=gdspy.Cell('PATHS')
 def crt_cavity(x,y):
 	cavity_pair.add(gdspy.Rectangle((-oc_w/2+x,-oc_l/2+y),(oc_w/2+x,oc_l/2+y),**spec1))
 
-# def crt_pcavity(x,y):
-# 	cavity_pair.add(gdspy.Rectangle((-pc_w/2+x,-pc_l/2+y),(pc_w/2+x,pc_l/2+y),**spec1))
-
 def crt_donut(xcenter,ycenter,length, width,rim_width):
 	p1=gdspy.Rectangle((xcenter-width/2,ycenter-length/2),(xcenter+width/2,ycenter+length/2))
 	p2=gdspy.Rectangle((xcenter-width/2+rim_width,ycenter-length/2+rim_width),(xcenter+width/2-rim_width,ycenter+length/2-rim_width))
 	p3=gdspy.boolean(p1,p2,'not',**spec1)
 	cavity_pair.add(p3)
 
-def crt_pcavity(x,y):
-	a=pill_cav(x,y,pc_l,pc_w,180)
+def crt_pcavity(x,y,rot):
+	a=pill_cav(x,y,pc_l,pc_w,500,rot)
 	cavity_pair.add(a)
 
 def crt_path(w,l,x,y,dir):
@@ -47,13 +44,13 @@ def crt_path(w,l,x,y,dir):
 def aperture(x,y,w,l):
 	crt_donut(x,y,oc_l,oc_w,500)
 	crt_path(w,l,x,y+oc_l/2,'+y')
-	crt_pcavity(x,y+l+oc_l/2+pc_l/2)
+	crt_pcavity(x,y+l+oc_l/2+pc_l/2,180)
 
 def cavity_pipe(x,y,width,separation_1,width_1): #keeping same surface area
 	length=separation_1*width_1/width
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew)
+	crt_pcavity(x,y+ynew,180)
 	path1=gdspy.Path(width,(x,y+oc_l/2))
 	path1.segment(length,'+y',**spec1)
 	cavity_pair.add(path1)
@@ -61,7 +58,7 @@ def cavity_pipe(x,y,width,separation_1,width_1): #keeping same surface area
 def n_parallels(x,y,width,length,n,separation): #same length, varying surface area (or width)
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew)
+	crt_pcavity(x,y+ynew,180)
 	path1=gdspy.Path(width,(x,y+oc_l/2),n,separation)
 	path1.segment(length,'+y',**spec1)
 	cavity_pair.add(path1)
@@ -69,7 +66,7 @@ def n_parallels(x,y,width,length,n,separation): #same length, varying surface ar
 def cavity_pipe_sl(x,y,width,width_f,length): #same length, varying surface area (or width)
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew)
+	crt_pcavity(x,y+ynew,180)
 	path1=gdspy.Path(width,(x,y+oc_l/2))
 	path1.segment(length/2,'+y',**spec1)
 	path1.segment(length/2,'+y',final_width=width_f,**spec1)
@@ -89,7 +86,7 @@ def cavity_serpentine(x,y,width,path_length,turns):
 	path2.segment(segment_length-width,'+y',**spec1)		
 	cavity_pair.add(path2)
 	y_2=2*segment_length+(2*turns)*width
-	crt_pcavity(x,y+oc_l/2+pc_l/2+y_2)
+	crt_pcavity(x,y+oc_l/2+pc_l/2+y_2,180)
 
 def parallel_channel(x,y,width,path_len,branches):
 	crt_donut(x,y,oc_l,oc_w,500)
@@ -160,7 +157,7 @@ def zigzag_channel(x,y,w,length,n):
 			a[i][1]=y+oc_l/2+i*(l/np.sqrt(2))
 	path=gdspy.FlexPath(a,w,corners='smooth',**spec1)
 	cavity_pair.add(path)
-	crt_pcavity(x,y+oc_l/2+pc_l/2+2*n*(l/np.sqrt(2)))
+	crt_pcavity(x,y+oc_l/2+pc_l/2+2*n*(l/np.sqrt(2)),180)
 
 def weird_pipe(x,y,w_min,w_max,l,n):
 	crt_donut(x,y,oc_l,oc_w,500)
@@ -168,14 +165,14 @@ def weird_pipe(x,y,w_min,w_max,l,n):
 	sin_path.parametric(lambda u: (0,l*u),lambda u: (0,l), final_width=lambda u : w_min
 	- (w_max-w_min)*np.sin(n*2*pi*u), number_of_evaluations=512,**spec1)
 	cavity_pair.add(sin_path)
-	crt_pcavity(x,y+oc_l/2+l+pc_l/2)
+	crt_pcavity(x,y+oc_l/2+l+pc_l/2,180)
 
 def longpipe(x,y,w,dir,l):
 	crt_donut(x,y,oc_l,oc_w,500)
 	path=gdspy.Path(w,(x,y+oc_l/2))
 	path.segment(l,dir,**spec1)
 	cavity_pair.add(path)
-	crt_pcavity(x-(l*np.cos(pi-dir))-pc_w/2,y+3*pc_w/8+oc_l/2+(l*np.sin(pi-dir)))
+	crt_pcavity(x-(l*np.cos(pi-dir))-pc_w/2,y+3*pc_w/8+oc_l/2+(l*np.sin(pi-dir)),-90)
 
 
 # ------------------------------------------------------------------ #
@@ -255,7 +252,7 @@ path2.segment(l,'+x',**spec1)
 path2.segment(l,'+y',**spec1)
 path2.segment(l,'-x',**spec1)
 
-crt_pcavity(x,y+pc_l/2+oc_l/2+3*l)
+crt_pcavity(x,y+pc_l/2+oc_l/2+3*l,180)
 
 cavity_pair.add(path1)
 cavity_pair.add(path2)
@@ -278,7 +275,7 @@ path2.segment(l,'+y',**spec1)
 path2.segment(l,'-x',**spec1)
 path2.segment(l,'+y',**spec1)
 
-crt_pcavity(x2,y2+pc_l/2+oc_l/2+3*l)
+crt_pcavity(x2,y2+pc_l/2+oc_l/2+3*l,180)
 
 cavity_pair.add(path1)
 cavity_pair.add(path2)
@@ -291,8 +288,8 @@ crt_donut(-15125,29000,oc_l,oc_w,500)
 crt_donut(-21175,29000,oc_l,oc_w,500)
 crt_donut(-27225,29000,oc_l,oc_w,500)
 
-crt_pcavity(-24200,33500)
-crt_pcavity(0,33500)
+crt_pcavity(-24200,33500,180)
+crt_pcavity(0,33500,180)
 
 crt_path(2,3500,-24200,33500-pc_l/2,-pi/2)
 crt_path(2,3500,0,33500-pc_l/2,-pi/2)
@@ -306,7 +303,7 @@ crt_path(2,3000,-9075,33500,-pi/2)
 crt_donut(-9075,6500,oc_l,oc_w,500)
 crt_donut(-3025,-1000,oc_l,oc_w,500)
 crt_donut(3025,6500,oc_l,oc_w,500)
-crt_pcavity(-3025,10500)
+crt_pcavity(-3025,10500,180)
 
 cir=gdspy.Path(50,(-3025,9750))
 cir.segment(2750,'-y',**spec1)
