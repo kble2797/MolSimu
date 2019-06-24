@@ -63,7 +63,7 @@ def n_parallels(x,y,width,length,n,separation): #same length, varying surface ar
 	path1.segment(length,'+y',**spec1)
 	cavity_pair.add(path1)
 
-def cavity_pipe_sl(x,y,width,width_f,length): #same length, varying surface area (or width)
+def cavity_pipe_sl(x,y,width,width_f,length,oc_l,oc_w): #same length, varying surface area (or width)
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
 	crt_pcavity(x,y+ynew,180)
@@ -179,16 +179,21 @@ def longpipe(x,y,w,dir,l):
 #		Generating cells
 # ------------------------------------------------------------------ #
 
-cavity_pipe_sl(9075,6500,10,10,2000)
-cavity_pipe_sl(15125,6500,15,15,2000)
-cavity_pipe_sl(21175,6500,20,20,2000)
-cavity_pipe_sl(27225,6500,25,25,2000)
+cavity_pipe_sl(9075,6500,10,10,2000,oc_l,oc_w)
+cavity_pipe_sl(15125,6500,15,15,2000,oc_l,oc_w)
+cavity_pipe_sl(21175,6500,20,20,2000,oc_l,oc_w)
+cavity_pipe_sl(27225,6500,25,25,2000,oc_l,oc_w)
+
+cavity_pipe_sl(-39325,6500,10,10,2000,2000,2000)
+cavity_pipe_sl(-27225,-1000,10,10,2000,2500,2500)
+cavity_pipe_sl(-33275,-1000,10,10,2000,3500,3500)
+cavity_pipe_sl(-39325,-1000,10,10,2000,4000,4000)
 
 
-cavity_pipe_sl(9075,14000,10,50,2000)
-cavity_pipe_sl(15125,14000,10,100,2000)
-cavity_pipe_sl(21175,14000,10,150,2000)
-cavity_pipe_sl(27225,14000,10,200,2000)
+cavity_pipe_sl(9075,14000,10,50,2000,oc_l,oc_w)
+cavity_pipe_sl(15125,14000,10,100,2000,oc_l,oc_w)
+cavity_pipe_sl(21175,14000,10,150,2000,oc_l,oc_w)
+cavity_pipe_sl(27225,14000,10,200,2000,oc_l,oc_w)
 
 
 cavity_serpentine(15125,21500,10,2000,1)
@@ -215,10 +220,10 @@ n_parallels(3025,14000,10,2000,4,200)
 
 
 #aperture
-cavity_pipe_sl(39325,14000,100,100,500)
-cavity_pipe_sl(39325,6500,250,250,500)
-cavity_pipe_sl(33275,14000,500,500,500)
-cavity_pipe_sl(33275,6500,1000,1000,500)
+cavity_pipe_sl(39325,14000,100,100,500,oc_l,oc_w)
+cavity_pipe_sl(39325,6500,250,250,500,oc_l,oc_w)
+cavity_pipe_sl(33275,14000,500,500,500,oc_l,oc_w)
+cavity_pipe_sl(33275,6500,1000,1000,500,oc_l,oc_w)
 
 
 longpipe(9075,21500,10,11*pi/12,2000)
@@ -288,16 +293,16 @@ crt_donut(-15125,29000,oc_l,oc_w,500)
 crt_donut(-21175,29000,oc_l,oc_w,500)
 crt_donut(-27225,29000,oc_l,oc_w,500)
 
-crt_pcavity(-24200,33500,180)
+crt_pcavity(-24200,33500,270)
 crt_pcavity(0,33500,180)
 
-crt_path(2,3500,-24200,33500-pc_l/2,-pi/2)
-crt_path(2,3500,0,33500-pc_l/2,-pi/2)
-crt_path(2,3050,-27225+oc_w/2,29250,0)
-crt_path(2,3050,-3025+oc_w/2,29250,0)
-crt_path(2,22700,-24200+pc_w/2,33500,0)
-crt_path(2,3000,-15125,33500,-pi/2)
-crt_path(2,3000,-9075,33500,-pi/2)
+crt_path(10,3500,-24200,33500-pc_l/2,-pi/2)
+crt_path(10,3500,0,33500-pc_l/2,-pi/2)
+crt_path(10,3050,-27225+oc_w/2,29250,0)
+crt_path(10,3050,-3025+oc_w/2,29250,0)
+crt_path(45,22700,-24200+pc_w/2,33500,0)
+crt_path(45,3000,-15125,33500,-pi/2)
+crt_path(45,3000,-9075,33500,-pi/2)
 
 #---------------------------------------#
 crt_donut(-9075,6500,oc_l,oc_w,500)
