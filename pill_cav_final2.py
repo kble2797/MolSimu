@@ -6,7 +6,7 @@ pill_size=600
 spec1={'layer':1,'datatype':1}
 
 def pill_cav_final(xcenter,ycenter,length,width,separation,rotation):
-	coords=[(pill_size,0),(width,0),(width,length),(0,length),(width-separation,1e3),(width-separation,separation),(0.5*1e3,separation),(pill_size,0.5e3)]
+	coords=[(pill_size,0),(width,0),(width,length),(0,length),(width-500,1e3),(width-500,500),(0.5*1e3,500),(pill_size,0.5e3)]
 	coords=np.asarray(coords)
 	for a,element in enumerate(coords):
 		coords[a][0]+=xcenter-width/2
@@ -20,7 +20,7 @@ def pill_cav_final(xcenter,ycenter,length,width,separation,rotation):
 	return p5
 
 cell1=gdspy.Cell('First')
-cell1.add(pill_cav_final(0,0,1.5e3,2e3,500,0))
+cell1.add(pill_cav_final(0,0,1500,2000,750,0))
 
 gdspy.write_gds('pill_cav_final2.gds',unit=units,precision=1.0e-9)
 
