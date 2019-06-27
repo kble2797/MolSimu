@@ -4,7 +4,7 @@
 import numpy as np
 import gdspy
 from scipy.constants import k,pi,N_A
-from pill_cav_final import pill_cav
+from pill_cav_final import pill_cav_final
 from OPCavFunnel import op_cav_funnel
 from OPCavFunnelAngled import op_cav_funnel_angled
 
@@ -36,7 +36,7 @@ def crt_donut(xcenter,ycenter,length, width,rim_width,):
 	cavity_pair.add(p3)
 
 def crt_pcavity(x,y,rot):
-	a=pill_cav(x,y,pc_l,pc_w,500,rot)
+	a=pill_cav_final(x,y,pc_l,pc_w,500,rot)
 	cavity_pair.add(a)
 
 def crt_path(w,l,x,y,dir):
@@ -47,13 +47,13 @@ def crt_path(w,l,x,y,dir):
 def aperture(x,y,w,l):
 	crt_donut(x,y,oc_l,oc_w,500)
 	crt_path(w,l,x,y+oc_l/2,'+y')
-	crt_pcavity(x,y+l+oc_l/2+pc_l/2,180)
+	crt_pcavity(x,y+l+oc_l/2+pc_l/2,-90)
 
 def cavity_pipe(x,y,width,separation_1,width_1): #keeping same surface area
 	length=separation_1*width_1/width
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew,180)
+	crt_pcavity(x,y+ynew,-90)
 	path1=gdspy.Path(width,(x,y+oc_l/2))
 	path1.segment(length,'+y',**spec1)
 	cavity_pair.add(path1)
@@ -61,7 +61,7 @@ def cavity_pipe(x,y,width,separation_1,width_1): #keeping same surface area
 def n_parallels(x,y,width,length,n,separation): #same length, varying surface area (or width)
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew,180)
+	crt_pcavity(x,y+ynew,-90)
 	path1=gdspy.Path(width,(x,y+oc_l/2),n,separation)
 	if n % 2 == 0:
 		for i in range(int(n/2)):
@@ -81,7 +81,7 @@ def n_parallels(x,y,width,length,n,separation): #same length, varying surface ar
 def cavity_pipe_sl(x,y,width,width_f,length,oc_l,oc_w): #same length, varying surface area (or width)
 	crt_donut(x,y,oc_l,oc_w,500)
 	ynew=length+pc_l/2+oc_l/2
-	crt_pcavity(x,y+ynew,180)
+	crt_pcavity(x,y+ynew,-90)
 	path1=gdspy.Path(width,(x,y+oc_l/2))
 	path1.segment(length/2,'+y',**spec1)
 	path1.segment(length/2,'+y',final_width=width_f,**spec1)
@@ -104,7 +104,7 @@ def cavity_serpentine(x,y,width,path_length,turns):
 	path2.segment(segment_length,'+y',**spec1)		
 	cavity_pair.add(path2)
 	y_2=2*segment_length+(4*turns)*width
-	crt_pcavity(x,y+oc_l/2+pc_l/2+y_2,180)
+	crt_pcavity(x,y+oc_l/2+pc_l/2+y_2,-90)
 	cavity_pair.add(op_cav_funnel(x,y+oc_l/2+y_2,50,width,180))
 
 def parallel_channel(x,y,width,path_len,branches):
@@ -177,7 +177,7 @@ def zigzag_channel(x,y,w,length,n):
 			a[i][1]=y+oc_l/2+i*(l/np.sqrt(2))
 	path=gdspy.FlexPath(a,w,corners='smooth',**spec1)
 	cavity_pair.add(path)
-	crt_pcavity(x,y+oc_l/2+pc_l/2+2*n*(l/np.sqrt(2)),180)
+	crt_pcavity(x,y+oc_l/2+pc_l/2+2*n*(l/np.sqrt(2)),-90)
 	cavity_pair.add(op_cav_funnel_angled(x,y+oc_l/2+2*n*(l/np.sqrt(2)),100,0,w))
 
 def weird_pipe(x,y,w_min,w_max,l,n):
@@ -186,7 +186,7 @@ def weird_pipe(x,y,w_min,w_max,l,n):
 	sin_path.parametric(lambda u: (0,l*u),lambda u: (0,l), final_width=lambda u : w_min
 	- (w_max-w_min)*np.sin(n*2*pi*u), number_of_evaluations=512,**spec1)
 	cavity_pair.add(sin_path)
-	crt_pcavity(x,y+oc_l/2+l+pc_l/2,180)
+	crt_pcavity(x,y+oc_l/2+l+pc_l/2,-90)
 
 def longpipe(x,y,w,dir,l):
 	crt_donut(x,y,oc_l,oc_w,500)
@@ -272,23 +272,23 @@ l=p_l/8
 crt_donut(x,y,oc_l,oc_w,500)
 path1=gdspy.Path(20,(x,y+oc_l/2))
 path1.segment(l,'+y',**spec1)
-path1.turn(20,'l')
+path1.turn(20,'l',**spec1)
 path1.segment(l,'-x',**spec1)
-path1.turn(20,'r')
+path1.turn(20,'r',**spec1)
 path1.segment(l,'+y',**spec1)
-path1.turn(20,'r')
+path1.turn(20,'r',**spec1)
 path1.segment(l,'+x',**spec1)
-path1.turn(20,'l')
+path1.turn(20,'l',**spec1)
 path1.segment(l,'+y',**spec1)
 path2=gdspy.Path(20,(x,y+oc_l/2))
 path2.segment(l,'+y',**spec1)
-path2.turn(20,'r')
+path2.turn(20,'r',**spec1)
 path2.segment(l,'+x',**spec1)
-path2.turn(20,'l')
+path2.turn(20,'l',**spec1)
 path2.segment(l,'+y',**spec1)
-path2.turn(20,'l')
+path2.turn(20,'l',**spec1)
 path2.segment(l,'-x',**spec1)
-path2.turn(20,'r')
+path2.turn(20,'r',**spec1)
 path2.segment(l,'+y',**spec1)
 
 crt_pcavity(x,y+pc_l/2+oc_l/2+3*l+80,180)
@@ -307,25 +307,25 @@ cavity_pair.add(op_cav_funnel(x2-50,y2+oc_l/2,50,10,0))
 cavity_pair.add(op_cav_funnel(x2-50,y2+oc_l/2+3*l+40,50,10,180))
 path1=gdspy.Path(5,(x2-50,y2+oc_l/2))
 path1.segment(l,'+y',**spec1)
-path1.turn(10,'l')
+path1.turn(10,'l',**spec1)
 path1.segment(l,'-x',**spec1)
-path1.turn(10,'r')
+path1.turn(10,'r',**spec1)
 path1.segment(l,'+y',**spec1)
-path1.turn(10,'r')
+path1.turn(10,'r',**spec1)
 path1.segment(l,'+x',**spec1)
-path1.turn(10,'l')
+path1.turn(10,'l',**spec1)
 path1.segment(l,'+y',**spec1)
 cavity_pair.add(op_cav_funnel(x2+50,y2+oc_l/2,50,10,0))
 cavity_pair.add(op_cav_funnel(x2+50,y2+oc_l/2+3*l+40,50,10,180))
 path2=gdspy.Path(5,(x2+50,y2+oc_l/2))
 path2.segment(l,'+y',**spec1)
-path2.turn(10,'r')
+path2.turn(10,'r',**spec1)
 path2.segment(l,'+x',**spec1)
-path2.turn(10,'l')
+path2.turn(10,'l',**spec1)
 path2.segment(l,'+y',**spec1)
-path2.turn(10,'l')
+path2.turn(10,'l',**spec1)
 path2.segment(l,'-x',**spec1)
-path2.turn(10,'r')
+path2.turn(10,'r',**spec1)
 path2.segment(l,'+y',**spec1)
 
 crt_pcavity(x2,y2+pc_l/2+oc_l/2+3*l+40,180)
@@ -344,21 +344,23 @@ crt_donut(-21175,29000,oc_l,oc_w,500)
 crt_donut(-27225,29000,oc_l,oc_w,500)
 
 crt_pcavity(-24200,33500,270)
-cavity_pair.add(op_cav_funnel(-24200+pc_l/2,33500,100,45,-90))
+cavity_pair.add(op_cav_funnel(-24200+pc_l/2,33500,100,60,-90))
+cavity_pair.add(op_cav_funnel(-24200,33500-pc_l/2,50,15,180))
 crt_pcavity(0,33500,180)
-cavity_pair.add(op_cav_funnel(0-pc_l/2,33500,100,45,+90))
+cavity_pair.add(op_cav_funnel(0-pc_l/2,33500,100,60,+90))
+cavity_pair.add(op_cav_funnel(0,33500-pc_l/2,50,15,180))
 
-crt_path(10,3500,-24200,33500-pc_l/2,-pi/2)
-crt_path(10,3500,0,33500-pc_l/2,-pi/2)
-crt_path(10,3050,-27225+oc_w/2,29250,0)
+crt_path(15,3500,-24200,33500-pc_l/2,-pi/2)
+crt_path(15,3500,0,33500-pc_l/2,-pi/2)
+crt_path(15,3050,-27225+oc_w/2,29250,0)
 cavity_pair.add(op_cav_funnel(-27225+oc_w/2,29250,50,10,-90))
 cavity_pair.add(op_cav_funnel(-27225+oc_w/2+3050,29250,50,10,90))
-crt_path(10,3050,-3025+oc_w/2,29250,0)
+crt_path(15,3050,-3025+oc_w/2,29250,0)
 cavity_pair.add(op_cav_funnel(-3025+oc_w/2,29250,50,10,-90))
 cavity_pair.add(op_cav_funnel(-3025+oc_w/2+3050,29250,50,10,90))
-crt_path(45,22700,-24200+pc_w/2,33500,0)
-crt_path(45,3000,-15125,33500,-pi/2)
-crt_path(45,3000,-9075,33500,-pi/2)
+crt_path(60,22700,-24200+pc_w/2,33500,0)
+crt_path(60,3000,-15125,33500,-pi/2)
+crt_path(60,3000,-9075,33500,-pi/2)
 
 #---------------------------------------#
 crt_donut(-9075,6500,oc_l,oc_w,500)
@@ -367,7 +369,7 @@ crt_donut(-3025,-1000,oc_l,oc_w,500)
 cavity_pair.add(op_cav_funnel(-3025,-1000+oc_l/2,50,50,0))
 crt_donut(3025,6500,oc_l,oc_w,500)
 cavity_pair.add(op_cav_funnel(3025-oc_w/2,6500,50,50,90))
-crt_pcavity(-3025,10500,180)
+crt_pcavity(-3025,10500,-90)
 cavity_pair.add(op_cav_funnel(-3025,10500-pc_l/2,50,50,180))
 
 cir=gdspy.Path(50,(-3025,9750))
