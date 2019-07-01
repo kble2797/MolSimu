@@ -3,7 +3,7 @@
 import gdspy
 import numpy as np
 #from doughnuts import doughnut
-from pill_cav_final import *
+#from pill_cav_final import *
 #from OPCavFunnel import *
 
 spec1={'layer':1,'datatype':1}
@@ -21,6 +21,8 @@ gridspacingy=7500
 gridpositionx=-27225
 gridpositiony=-16000
 
+pill_size=800
+
 # ------------------------------------------------------------------ #
 #      Make Cells
 # ------------------------------------------------------------------ #
@@ -28,15 +30,29 @@ gridpositiony=-16000
 cavity_pair= gdspy.Cell("POLYGONS")
 path_cell=gdspy.Cell('PATHS')
 
+def pill_cav_final(xcenter,ycenter,length,width,separation,rotation):
+	coords=[(pill_size,0),(width,0),(width,length),(0,length),(width-500,1e3),(width-500,500),(0.5*1e3,500),(pill_size,0.5e3)]
+	coords=np.asarray(coords)
+	for a,element in enumerate(coords):
+		coords[a][0]+=xcenter-width/2
+		coords[a][1]+=ycenter-length/2
+	p1=gdspy.Polygon(coords)
+	p2=gdspy.Round((xcenter-0.5*1e3,ycenter-0.6*1e3),pill_size,number_of_points=100)
+	p3=gdspy.boolean(p1,p2,'or',**spec1)
+	p4=gdspy.Rectangle((-width/2+xcenter-500,ycenter+200+200),(width/4+xcenter-500,length/2+ycenter),**spec1)
+	p5=gdspy.boolean(p3,p4,'not',**spec1)
+	p5.rotate(rotation*np.pi/180,(xcenter,ycenter))
+	cavity_pair.add(p5)
+
 def channel_bend(x,y,width,angle):
 	length=1800
 	#path length between cavities
 	#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x,Op_Cav_Len/2+y),**spec1))
 	#creates optical cavity
-	if angle>=np.pi/4:
-		xnew=(length/2)*np.cos(angle)+50+600
-		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)-10-750
-		pill_cav_final(x+xnew,y+ynew,1500,2000,750,180)
+	if angle>=5*np.pi/16:
+		xnew=(length/2)*np.cos(angle)+700
+		ynew=length/2+Pill_Cav_Len+(length/2)*np.sin(angle)-10-1500
+		pill_cav_final(x+xnew,y+ynew,1500,2000,750,90)
 		#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x+xnew,-Op_Cav_Len/2+y+ynew),(Op_Cav_Width/4+x+xnew,y+ynew),**spec1))
 	else:
 		xnew=(length/2)*np.cos(angle)+Op_Cav_Width/4-5+250
@@ -178,7 +194,7 @@ def const_len(x,y,width):
 	cavity_pair.add(path1)
 	#creates a path along the y axis for the middle
 	#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend1-Pill_Cav_Width/4+Op_Cav_Width/4,-Op_Cav_Len/4+y-length_pre_bend1-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend1-Pill_Cav_Width/4+Op_Cav_Width/4,Op_Cav_Len/4+y-length_pre_bend1-Op_Cav_Len/2),**spec1))
-	path2=gdspy.Path(width,(x-length_post_bend1+Op_Cav_Width/4,y-length_pre_bend1-Op_Cav_Len/2))
+	path2=gdspy.Path(width,(x-length_post_bend1+Op_Cav_Width/4+5,y-length_pre_bend1-Op_Cav_Len/2+5))
 	path2.segment(length_post_bend1,'+x',**spec1)
 	cavity_pair.add(path2)
 	#creates the pill cavity and the x axis path for the middle
@@ -186,12 +202,12 @@ def const_len(x,y,width):
 
 	#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/2+x-gridspacingx,-Op_Cav_Len/2+y),(Op_Cav_Width/2+x-gridspacingx,Op_Cav_Len/2+y),**spec1))
 	#creates optical cavity for the left
-	path3=gdspy.Path(width,(x-gridspacingx+Op_Cav_Width/4,y-length_pre_bend2-Op_Cav_Len/2))
+	path3=gdspy.Path(width,(x-gridspacingx+Op_Cav_Width/4,y-length_pre_bend2-Op_Cav_Len/2+Op_Cav_Len+length_pre_bend2))
 	path3.segment(length_pre_bend2,'+y',**spec1)
 	cavity_pair.add(path3)
 	#creates a path along the y axis for the left
 	#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend2-gridspacingx-Pill_Cav_Width/4+Op_Cav_Width/4,-Op_Cav_Len/4+y-length_pre_bend2-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend2-gridspacingx-Pill_Cav_Width/4+Op_Cav_Width/4,Op_Cav_Len/4+y-length_pre_bend2-Op_Cav_Len/2),**spec1))
-	path4=gdspy.Path(width,(x-length_post_bend2-gridspacingx+Op_Cav_Width/4,y-length_pre_bend2-Op_Cav_Len/2))
+	path4=gdspy.Path(width,(x-length_post_bend2-gridspacingx+Op_Cav_Width/4+5,y-length_pre_bend2-Op_Cav_Len/2+Op_Cav_Len+2*length_pre_bend2-5))
 	path4.segment(length_post_bend2,'+x',**spec1)
 	cavity_pair.add(path4)
 	#creates the pill cavity and the x axis path for the left top
@@ -204,7 +220,7 @@ def const_len(x,y,width):
 	cavity_pair.add(path5)
 	#creates a path along the y axis for the right
 	#cavity_pair.add(gdspy.Rectangle((-Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4+gridspacingx,-Op_Cav_Len/4+y-length_pre_bend3-Op_Cav_Len/2),(Op_Cav_Width/4+x-length_post_bend3-Pill_Cav_Width/4+gridspacingx,Op_Cav_Len/4+y-length_pre_bend3-Op_Cav_Len/2),**spec1))
-	path6=gdspy.Path(width,(x-length_post_bend3+gridspacingx-200,y-length_pre_bend3-Op_Cav_Len/2))
+	path6=gdspy.Path(width,(x-length_post_bend3+gridspacingx-200+5,y-length_pre_bend3-Op_Cav_Len/2+5))
 	path6.segment(length_post_bend3,'+x',**spec1)
 	cavity_pair.add(path6)
 	#creates the pill cavity and the x axis path for the bottom
@@ -477,28 +493,25 @@ def diagonal_cavities(x,y,width,circle):
 			cavity_pair.add(gdspy.Round((x-Op_Cav_Len-length/2*np.cos(angle2)-gridspacingx/2+Op_Cav_Width/2-200-53,y+Op_Cav_Len/2-length/2*np.sin(angle1)-Op_Cav_Len+5),radius,**spec1))
 	#creates the circle
 
+def original_exp(xcenter,ycenter,xchange,angle):
+	height=2000
+	pathwidth=10
+	path1=gdspy.Path(pathwidth,(xcenter+xchange,ycenter+Op_Cav_Len/2))
+	path1.segment(height,'+y',**spec1)
+	cavity_pair.add(path1)
+
+def original_exp_rot(xcenter,ycenter,ychange,angle):
+	height=2000
+	pathwidth=10
+	path1=gdspy.Path(pathwidth,(xcenter+Op_Cav_Len/2,ycenter+ychange))
+	path1.segment(height,'+x',**spec1)
+	cavity_pair.add(path1)
 
 def doughnut(xcenter,ycenter,length, width,rim_width):
 	p1=gdspy.Rectangle((xcenter-width/2,ycenter-length/2),(xcenter+width/2,ycenter+length/2),**spec1)
 	p2=gdspy.Rectangle((xcenter-width/2+rim_width,ycenter-length/2+rim_width),(xcenter+width/2-rim_width,ycenter+length/2-rim_width),**spec1)
 	p3=gdspy.boolean(p1,p2,'not',**spec1)
 	cavity_pair.add(p3)
-
-
-def pill_cav_final(xcenter,ycenter,length,width,separation,rotation):
-	coords=[(pill_size,0),(width,0),(width,length),(0,length),(width-500,1e3),(width-500,500),(0.5*1e3,500),(pill_size,0.5e3)]
-	coords=np.asarray(coords)
-	for a,element in enumerate(coords):
-		coords[a][0]+=xcenter-width/2
-		coords[a][1]+=ycenter-length/2
-	p1=gdspy.Polygon(coords)
-	p2=gdspy.Round((xcenter-0.5*1e3,ycenter-0.4*1e3),pill_size,number_of_points=100)
-	p3=gdspy.boolean(p1,p2,'or',**spec1)
-	p4=gdspy.Rectangle((-width/2+xcenter,ycenter+200),(width/4+xcenter,length/2+ycenter),**spec1)
-	p5=gdspy.boolean(p3,p4,'not',**spec1)
-	p5.rotate(rotation*np.pi/180,(xcenter,ycenter))
-	cavity_pair.add(p5)
-
 
 # def pill_cav_final(xcenter,ycenter,length,width,separation,rotation):
 # 	a=pill_cav_final(xcenter,ycenter,length,width,separation,rotation)
@@ -585,6 +598,15 @@ SA_cavity(gridpositionx+7*gridspacingx-Op_Cav_Width/2,gridpositiony,10,300,100,1
 diagonal_cavities(gridpositionx+9*gridspacingx,gridpositiony,10,0)
 diagonal_cavities(gridpositionx+11*gridspacingx,gridpositiony,10,1)
 
+original_exp(gridpositionx+9*gridspacingx,gridpositiony-2*gridspacingy,-1200,90)
+original_exp_rot(gridpositionx+7*gridspacingx,gridpositiony-3*gridspacingy,0,90)
+original_exp(gridpositionx-2*gridspacingx,gridpositiony+gridspacingy,1200,90)
+original_exp(gridpositionx-gridspacingx,gridpositiony+5*gridspacingy,-1400,90)
+original_exp(gridpositionx+11*gridspacingx,gridpositiony+2*gridspacingy,-1200,90)
+
+
+
+
 doughnut(gridpositionx,gridpositiony,3000,3000,500)
 doughnut(gridpositionx-gridspacingx,gridpositiony,3000,3000,500)
 doughnut(gridpositionx-2*gridspacingx,gridpositiony,3000,3000,500)
@@ -629,16 +651,22 @@ doughnut(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500
 doughnut(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
 doughnut(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
 #fourth row
+doughnut(gridpositionx+9*gridspacingx,gridpositiony-2*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+7*gridspacingx,gridpositiony-3*gridspacingy,3000,3000,500)
+doughnut(gridpositionx-2*gridspacingx,gridpositiony+gridspacingy,3000,3000,500)
+doughnut(gridpositionx-gridspacingx,gridpositiony+5*gridspacingy,3000,3000,500)
+doughnut(gridpositionx+11*gridspacingx,gridpositiony+2*gridspacingy,3000,3000,500)
+#original exp doughnuts
 
-pill_cav_final(gridpositionx-2*gridspacingx-2000,gridpositiony-Op_Cav_Len/2-1400,1500,2000,750,-90)
-pill_cav_final(gridpositionx-gridspacingx-3000,gridpositiony-Op_Cav_Len/2-400,1500,2000,750,-90)
-pill_cav_final(gridpositionx-Op_Cav_Width/4-1000-200,gridpositiony-Op_Cav_Len/2-2400,1500,2000,750,-90)
+pill_cav_final(gridpositionx-2*gridspacingx-2000+5,gridpositiony-Op_Cav_Len/2-1400+Op_Cav_Len+4000,1500,2000,750,-90)
+pill_cav_final(gridpositionx-gridspacingx-3000-250+5,gridpositiony-Op_Cav_Len/2-1400,1500,2000,750,0)
+pill_cav_final(gridpositionx-Op_Cav_Width/4-1000-200+5,gridpositiony-Op_Cav_Len/2-2400,1500,2000,750,-90)
 #const length pill cavities left to right
-pill_cav_final(gridpositionx+gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
+pill_cav_final(gridpositionx+gridspacingx+600,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
 pill_cav_final(gridpositionx+2*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
 pill_cav_final(gridpositionx+3*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
 pill_cav_final(gridpositionx+4*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
-pill_cav_final(gridpositionx+5*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
+pill_cav_final(gridpositionx+5*gridspacingx,gridpositiony-Op_Cav_Len/2-1000-Pill_Cav_Len/4,1500,2000,750,0)
 pill_cav_final(gridpositionx+6*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
 pill_cav_final(gridpositionx+7*gridspacingx+800,gridpositiony-Op_Cav_Len/2-1250-Pill_Cav_Len/4,1500,2000,750,90)
 #SA pill cavities left to right
@@ -647,18 +675,24 @@ pill_cav_final(gridpositionx+2000*np.cos(np.pi/4)+600,gridpositiony-gridspacingy
 pill_cav_final(gridpositionx+gridspacingx+Op_Cav_Width/2+2000*np.cos(np.pi/4)-5+600,gridpositiony-gridspacingy+Op_Cav_Len/2+Pill_Cav_Len/4+2000*np.sin(np.pi/4)-10,1500,2000,750,180)
 pill_cav_final(gridpositionx+2*gridspacingx+Op_Cav_Width/2+Pill_Cav_Width/4+2000*np.cos(np.pi/4)-10+250,gridpositiony-gridspacingy+Op_Cav_Len/2+Pill_Cav_Len/4+2000*np.sin(np.pi/4)-10,1500,2000,750,180)
 #avoid bounceback pill cavities left to right
-pill_cav_final(gridpositionx+3*gridspacingx+gridspacingx/2+gridspacingx/4-300+600,gridpositiony-gridspacingy-1250-Pill_Cav_Len/4-Op_Cav_Len/2,1500,2000,750,90)
+pill_cav_final(gridpositionx+3*gridspacingx+gridspacingx/2+gridspacingx/4+100,gridpositiony-gridspacingy-1250-Pill_Cav_Len/4-Op_Cav_Len/2,1500,2000,750,90)
 pill_cav_final(gridpositionx+5*gridspacingx+gridspacingx/2-100,gridpositiony-gridspacingy+Op_Cav_Len/2+2*500-Pill_Cav_Len/4+250,1500,2000,750,-90)
 pill_cav_final(gridpositionx+7*gridspacingx+gridspacingx/2+400,gridpositiony-gridspacingy-1250-Pill_Cav_Len/4-Op_Cav_Len/2,1500,2000,750,90)
 pill_cav_final(gridpositionx+9*gridspacingx+gridspacingx/2+400,gridpositiony-gridspacingy-1250-Pill_Cav_Len/4-Op_Cav_Len/2,1500,2000,750,90)
 #Multiple Cavities Designs pill cavities
 pill_cav_final(gridpositionx+9*gridspacingx-(gridspacingx/2-5000*np.cos(np.pi/4)+5000/2*np.cos(np.pi/4)+Pill_Cav_Width/4)+15-5000*np.cos(np.pi/4),gridpositiony+Pill_Cav_Len/2+Pill_Cav_Len/8-5000*np.sin(np.pi/4)-Op_Cav_Len+10+250,1500,2000,750,-90)
 pill_cav_final(gridpositionx+11*gridspacingx-(gridspacingx/2-5000*np.cos(np.pi/4)+5000/2*np.cos(np.pi/4)+Pill_Cav_Width/4)+15-5000*np.cos(np.pi/4),gridpositiony+Pill_Cav_Len/2+Pill_Cav_Len/8-5000*np.sin(np.pi/4)-Op_Cav_Len+10+250,1500,2000,750,-90)
-#diagonal cavity pill cavities	
+#diagonal cavity pill cavities
+pill_cav_final(gridpositionx+9*gridspacingx-1800,gridpositiony-2*gridspacingy+Op_Cav_Len/2+3000,1500,2000,750,-90)
+pill_cav_final(gridpositionx+8*gridspacingx-Op_Cav_Width/2-50,gridpositiony-3*gridspacingy,1500,2000,750,180)
+pill_cav_final(gridpositionx-2*gridspacingx+1800,gridpositiony+gridspacingy+Op_Cav_Len/2+2000,1500,2000,750,90)
+pill_cav_final(gridpositionx-gridspacingx-2100,gridpositiony+5*gridspacingy+Op_Cav_Len/2+3000,1500,2000,750,-90)
+pill_cav_final(gridpositionx+11*gridspacingx-1800,gridpositiony+2*gridspacingy+Op_Cav_Len/2+3000,1500,2000,750,-90)
+#original cavity pill cavities
 
 op_cav_funnel(gridpositionx-200,gridpositiony-Op_Cav_Len/2,100,10,180)
 op_cav_funnel(gridpositionx-gridspacingx+Op_Cav_Width/4,gridpositiony-Op_Cav_Len/2,100,10,180)
-op_cav_funnel(gridpositionx-2*gridspacingx+Op_Cav_Width/4,gridpositiony-Op_Cav_Len/2,100,10,180)
+op_cav_funnel(gridpositionx-2*gridspacingx+Op_Cav_Width/4,gridpositiony-Op_Cav_Len/2+Op_Cav_Len,100,10,0)
 #const len funnels
 op_cav_funnel(gridpositionx+gridspacingx+500,gridpositiony-Op_Cav_Len/2,100,10,180)
 op_cav_funnel(gridpositionx+2*gridspacingx+500,gridpositiony-Op_Cav_Len/2,100,10,180)
@@ -703,6 +737,27 @@ op_cav_funnel(gridpositionx+4*gridspacingx,gridpositiony-3*gridspacingy+Op_Cav_L
 op_cav_funnel(gridpositionx+5*gridspacingx,gridpositiony-3*gridspacingy+Op_Cav_Len/2,100,10,0)
 op_cav_funnel(gridpositionx+6*gridspacingx,gridpositiony-3*gridspacingy+Op_Cav_Len/2,100,10,0)
 #channel bends circ funnels
+op_cav_funnel(gridpositionx+9*gridspacingx-1200,gridpositiony-2*gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+7*gridspacingx+Op_Cav_Len/2,gridpositiony-3*gridspacingy,100,10,-90)
+op_cav_funnel(gridpositionx-2*gridspacingx+1200,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx-gridspacingx-1400,gridpositiony+5*gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+11*gridspacingx-1200,gridpositiony+2*gridspacingy+Op_Cav_Len/2,100,10,0)
+#original exp funnel
+op_cav_funnel(gridpositionx-gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+3*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+4*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+5*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+6*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+7*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+8*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+9*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+10*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+op_cav_funnel(gridpositionx+11*gridspacingx,gridpositiony+gridspacingy+Op_Cav_Len/2,100,10,0)
+#Doug's funnels
+
+
+
 
 # ------------------------------------------------------------------ #
 #      Write and view file
